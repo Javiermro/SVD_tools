@@ -1,4 +1,4 @@
-function FuncCreateStrainSnapShotsHardeningFromMatFile(snpFolder, nE, nPos)
+function FuncCreateStrainSnapShotsHardeningFromMatFile(snpFolder, snpFile, nE, nPos)
 
 cd(snpFolder)
 
@@ -10,17 +10,16 @@ cd(snpFolder)
 % else
 %     error('binary files not detected, please check if the mat files are already created!')
 % end
-if exist([snpFolder,'SnapStrain.mat']) && exist([snpFolder,'SnapEnergy.mat']) && exist([snpFolder,'Snapflag.mat'])
-    load('SnapStrain.mat') % File that stores all Strains at every GP's
-    strainSnp=SnapStrain; clear SnapStrain
-    load('SnapEnergy.mat') % File that stores the flag for inelastic steps
+if exist( [snpFolder '/' snpFile])
+    load(snpFile) ;
+    strainSnp   = SnapStrain       ; clear SnapStrain
     energySnp_e = SnapEnergy_e     ; clear SnapEnergy_e
     energySnp_v = SnapEnergy_e_vol ; clear SnapEnergy_e_vol
     energySnp_d = SnapEnergy_e_dev ; clear SnapEnergy_e_dev
     energySnp_p = SnapEnergy_p     ; clear SnapEnergy_p
-    energySnp_t = energySnp_e + energySnp_p ;
-    load('Snapflag.mat') % File that stores the flag for inelastic steps
-    flagSnp = Snapflag ; clear Snapflag % uso la variable flag que viene de Inelastic.mat
+    energySnp_t = SnapEnergy_t     ; clear SnapEnergy_t
+    flagSnp     = Snapflag         ; clear Snapflag  % uso la variable flag que viene de Inelastic.mat
+    clear SnapWeight;  clear SnapStress;
 else
     error('binary files not detected, please check if the mat files are already created!')
 end
