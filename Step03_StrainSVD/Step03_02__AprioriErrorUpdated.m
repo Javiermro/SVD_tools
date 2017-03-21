@@ -4,30 +4,39 @@ display('-                          START                           -')
 display('------------------------------------------------------------')
 
 %%%%%%%%%%%%%%%%%%%%%%%%% USERS DEFINITIONS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-addpath('C:/CIMNE/Codes/toolsSVD/methods/matlab')
-% load('C:/CIMNE/Codes/MultiScale_SantaFe/Examples/REV_Laminate_01/DomainPointers.mat'); % Pointer for Domain Decomposition 
-load('C:/CIMNE/Codes/MultiScale_SantaFe/Examples/RVE_Hole_05/DomainPointers_Hole05.mat'); % Pointer for Domain Decomposition 
-% load('C:/CIMNE/Codes/MultiScale_SantaFe/Examples/TEST13/DomainPointers_TEST13.mat'); % Pointer for Domain Decomposition 
-femSolution='HF_Snapshot';% Mode_01';  % LOAD FEM SOLUTION (en esa carpeta se copia los Snapshot de deformacion del HF correspondientes al modo que se esta comparando)
-femRoot='/CIMNE/Codes/toolsSVD/Offline/Modes/'; 
-phiRoot='/CIMNE/Codes/toolsSVD/Offline/Modes/'; % LOAD BASIS
-phiFolders=dir([phiRoot 'HOLE05_nPos74_GDJ2_PSI_EP*']);                          
+addpath('/home/javiermro/Projects/SVD_tools/methods/matlab')
+load('/home/javiermro/Projects/Examples/StructHole10/DomainPointers.mat'); % Pointer for Domain Decomposition 
+femSolFolder='HF_Snapshot';% Mode_01';  % LOAD FEM SOLUTION (en esa carpeta se copia los Snapshot de deformacion del HF correspondientes al modo que se esta comparando)
+femSolFile='SNAPSHOTS_RVE_StructHole10.mat';
+phiRoot='/home/javiermro/Projects/SVD_tools/Offline/Modes/'; 
+phiFolders=dir([phiRoot 'RVE_StructHole10_nPos83*']);                          
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+phiFolders=dir([phiRoot 'RVE_StructHole10_nPos83*']);  
 
-femFolder=[femRoot femSolution];
+femFolder=[phiRoot femSolFolder];
 cd(femFolder);
-load('SnapStrain.mat'); 
-fem_reg=SnapStrain(PointersToSet1,:);
-fem_sin=SnapStrain(PointersToSet2,:); 
-clear SnapStrain;
+
+if exist( [femFolder '/' femSolFile])
+    load(femSolFile) ;
+    strainSnp = SnapStrain ; 
+    fem_reg   = SnapStrain(PointersToSet1,:);
+    fem_sin   = SnapStrain(PointersToSet2,:); 
+    flagSnp   = Snapflag   ;
+    clear SnapStrain SnapEnergy_e SnapEnergy_e_vol SnapEnergy_e_dev;
+    clear SnapEnergy_p SnapEnergy_t Snapflag SnapWeight SnapStress;    
+else
+    error('binary files not detected, please check if the mat files are already created!')
+end
+
+
 
 for n=1:size(phiFolders,1)    
     modeName=phiFolders(n).name;
     phiFolder=[phiRoot modeName];
-    cd(phiFolder); load(['allStrainModes4ROMI_' modeName '.mat']); 
+    cd(phiFolder); load(['allStrainModes_' modeName '.mat']); 
     phi_reg=PHI_EPS_REG(PointersToSet1,:);
     phi_sin=PHI_EPS_DIS(PointersToSet2,:); 
-    clear PHI_EPS_SIN PHI_EPS_REG;
+    clear PHI_EPS_DIS PHI_EPS_REG;
     
     %% ERROR REG
     display(['*** ' modeName ' regular ***'])
@@ -49,7 +58,7 @@ for n=1:size(phiFolders,1)
         end
     end
     
-    fid=fopen([phiFolder '/' femSolution '_' modeName '_AprioriError_' FileName '.dat'], 'w');
+    fid=fopen([phiFolder '/' femSolFolder '_' modeName '_AprioriError_' FileName '.dat'], 'w');
     index=1:size(err,2);
     fprintf(fid, '%1.0f %1.5f\n', [index; err]);
     fclose(fid);
@@ -74,7 +83,7 @@ for n=1:size(phiFolders,1)
         end
     end
     
-    fid=fopen([phiFolder '/' femSolution '_' modeName '_AprioriError_' FileName '.dat'], 'w');
+    fid=fopen([phiFolder '/' femSolFolder '_' modeName '_AprioriError_' FileName '.dat'], 'w');
     index=1:size(err,2);
     fprintf(fid, '%1.0f %1.5f\n', [index; err]);
     fclose(fid);

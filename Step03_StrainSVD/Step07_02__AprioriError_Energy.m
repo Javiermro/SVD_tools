@@ -4,48 +4,56 @@ display('-                          START                           -')
 display('------------------------------------------------------------')
 
 %%%%%%%%%%%%%%%%%%%%%%%%% USERS DEFINITIONS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-addpath('C:/CIMNE/Codes/toolsSVD/methods/matlab')
-% load('C:/CIMNE/Codes/MultiScale_SantaFe/Examples/REV_Laminate_01/DomainPointers.mat'); % Pointer for Domain Decomposition 
-load('C:/CIMNE/Codes/MultiScale_SantaFe/Examples/RVE_Hole_05/DomainPointers_Hole05.mat'); % Pointer for Domain Decomposition 
-% load('C:/CIMNE/Codes/MultiScale_SantaFe/Examples/TEST13/DomainPointers_TEST13.mat'); % Pointer for Domain Decomposition 
-femSolution='HF_Snapshot';% Mode_01';  % LOAD FEM SOLUTION (en esa carpeta se copia los Snapshot de deformacion del HF correspondientes al modo que se esta comparando)
-femRoot='C:/CIMNE/Codes/toolsSVD/Offline/Modes/'; 
-phiRoot='C:/CIMNE/Codes/toolsSVD/Offline/Modes/'; % LOAD BASIS
-phiFolders=dir([phiRoot 'HOLE05_nPos74_GDJ2_PSI_EP*']); 
+addpath('/home/javiermro/Projects/SVD_tools/methods/matlab')
+load('/home/javiermro/Projects/Examples/StructHole10/DomainPointers.mat'); % Pointer for Domain Decomposition 
+femSolFolder='HF_Snapshot';% Mode_01';  % LOAD FEM SOLUTION (en esa carpeta se copia los Snapshot de deformacion del HF correspondientes al modo que se esta comparando)
+femSolFile='SNAPSHOTS_RVE_StructHole10.mat';
+phiRoot='/home/javiermro/Projects/SVD_tools/Offline/Modes/'; 
+phiFolders=dir([phiRoot 'RVE_StructHole10_nPos83*']);                          
 ntens = 5 ; % stress/strain component for gauss point, 4 = PD; 5 = GD
+nameEnergySnap = ['Phi_ela'] ; %Phi_ela  Phi_vol  Phi_dev  Phi_pla  Phi_tot % name of Snapshot energy in the folder
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-femFolder=[femRoot femSolution];
+phiFolders=dir([phiRoot 'RVE_StructHole10_nPos83*']);  
+femFolder=[phiRoot femSolFolder];
+cd(femFolder);
 
 % Pointers corrections for energy domain
 PointersToSet1 = PointersToSet1(1:ntens:size(PointersToSet1,1)) ;
 PointersToSet2 = PointersToSet2(1:ntens:size(PointersToSet2,1)) ;
 
-cd(femFolder);
-load('SnapEnergy.mat'); 
-fem_reg=SnapEnergy(PointersToSet1,:);
-fem_sin=SnapEnergy(PointersToSet2,:); 
-clear SnapEnergy;
+if exist( [femFolder '/' femSolFile])
+    load(femSolFile) ;
 
-%     cd(phiFolders);
-%     load(['inelasPosEnergySnp_' num2str(nPos)])
-%     inelasEnergySnp=[inelasPosEnergySnp];
-% 
-% 
-% EnergySnp=[elasticEnergySnp inelasPosEnergySnp];
-% 
-% fem_dis=EnergySnp(pointersToCBElem,:); fem_reg=EnergySnp(pointersToMatrixElem,:);
-% clear EnergySnp;
-% 
-% %% LOAD BASIS
-% phiRoot='/home/mcaicedo/toolsemmanuel/Offline/Modes/';
-
+    switch nameEnergySnap
+        case 'Phi_ela' 
+            SnapEnergy = SnapEnergy_e ;
+        case 'Phi_vol' 
+            SnapEnergy = SnapEnergy_e_vol ;
+        case 'Phi_dev' 
+            SnapEnergy = SnapEnergy_e_dev ;
+        case 'Phi_pla' 
+            SnapEnergy = SnapEnergy_p ;
+        case 'Phi_tot' 
+            SnapEnergy = SnapEnergy_t ;            
+        otherwise
+            warning('Unexpected energy snapshot definition')
+    end
+    fem_reg = SnapEnergy(PointersToSet1,:);
+    fem_sin = SnapEnergy(PointersToSet2,:);           
+    flagSnp = Snapflag   ;
+    clear SnapStrain SnapEnergy_e SnapEnergy_e_vol SnapEnergy_e_dev;
+    clear SnapEnergy_p SnapEnergy_t Snapflag SnapWeight SnapStress;    
+else
+    error('binary files not detected, please check if the mat files are already created!')
+end
 
 for n=1:size(phiFolders,1)    
     modeName=phiFolders(n).name;
-    phiFolder=[phiRoot modeName];
-    %cd(phiFolder); load(['allEnergyModes4ROMI_' modeName '.mat']); phi_dis=PHI_ENER_DIS(pointersToCBElem,:); phi_reg=PHI_ENER_REG(pointersToMatrixElem,:);
-    cd(phiFolder); load(['allStrainEnergyModes4ROMI_' modeName '.mat']); phi_dis=PHI_ENER_DIS; phi_reg=PHI_ENER_REG;
-    clear PHI_ENER_DIS PHI_ENER_REG; 
+    phiFolder=[phiRoot modeName]; 
+    cd(phiFolder); load(['allStrainEnergyModes_' modeName '_' nameEnergySnap '.mat']); 
+    phi_dis = PHI_ENER_DIS; phi_reg = PHI_ENER_REG;
+    clear PHI_ENER_DIS  PHI_ENER_REG  PHI_EPS_DIS  PHI_EPS_REG
+    clear Sing_Val_ELAS_REG  Sing_Val_INELAS_REG  Sing_Val_ELAS_DIS  Sing_Val_INELAS_DIS
     
     %% ERROR REG
     display(['*** ' modeName ' regular ***'])
@@ -67,7 +75,7 @@ for n=1:size(phiFolders,1)
         end
     end
     
-    fid=fopen([phiFolder '/' femSolution '_' modeName '_AprioriError_' FileName '.dat'], 'w');
+    fid=fopen([phiFolder '/' femSolFolder '_' modeName '_AprioriError_' FileName '.dat'], 'w');
     index=1:size(err,2);
     fprintf(fid, '%1.0f %1.5f\n', [index; err]);
     fclose(fid);
@@ -92,7 +100,7 @@ for n=1:size(phiFolders,1)
         end
     end
     
-    fid=fopen([phiFolder '/' femSolution '_' modeName '_AprioriError_' FileName '.dat'], 'w');
+    fid=fopen([phiFolder '/' femSolFolder '_' modeName '_AprioriError_' FileName '.dat'], 'w');
     index=1:size(err,2);
     fprintf(fid, '%1.0f %1.5f\n', [index; err]);
     fclose(fid);
