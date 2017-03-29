@@ -6,10 +6,10 @@ display('------------------------------------------------------------')
 %%%%%%%%%%%%%%%%%%%%%%%%% USERS DEFINITIONS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 addpath('/home/javiermro/Projects/SVD_tools/methods/matlab')
 nE     = 6; % number of elastic snapshots (el menor de todos los modos)
-nPos   = 83; % number of Inelastic snapshots (diferencia entre la cant. total y en el nE mayor)
-nModes = 26; %number of modes or trajectories
-snpFolder0 = '/home/javiermro/Projects/Examples/StructHole10/Modo';
-snpFile='SNAPSHOTS_RVE_StructHole10.mat';
+nPos   = 0; % number of Inelastic snapshots (diferencia entre la cant. total y en el nE mayor)
+nModes = 6; %number of modes or trajectories
+snpFolder0 = '/home/javiermro/Projects/Examples/RVE_Hole01/Modo';
+snpFile='SNAPSHOTS_RVE_Hole01.mat';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  
 
 snpFolder = [];

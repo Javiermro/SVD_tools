@@ -17,13 +17,12 @@ femFolder=[phiRoot femSolFolder];
 cd(femFolder);
 
 if exist( [femFolder '/' femSolFile])
-    load(femSolFile) ;
+    load(femSolFile,'SnapStrain', 'Snapflag') ;
     strainSnp = SnapStrain ; 
     fem_reg   = SnapStrain(PointersToSet1,:);
     fem_sin   = SnapStrain(PointersToSet2,:); 
     flagSnp   = Snapflag   ;
-    clear SnapStrain SnapEnergy_e SnapEnergy_e_vol SnapEnergy_e_dev;
-    clear SnapEnergy_p SnapEnergy_t Snapflag SnapWeight SnapStress;    
+    clear SnapStrain Snapflag     
 else
     error('binary files not detected, please check if the mat files are already created!')
 end

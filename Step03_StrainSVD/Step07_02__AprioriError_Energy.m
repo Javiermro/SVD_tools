@@ -22,27 +22,23 @@ PointersToSet1 = PointersToSet1(1:ntens:size(PointersToSet1,1)) ;
 PointersToSet2 = PointersToSet2(1:ntens:size(PointersToSet2,1)) ;
 
 if exist( [femFolder '/' femSolFile])
-    load(femSolFile) ;
-
     switch nameEnergySnap
-        case 'Phi_ela' 
-            SnapEnergy = SnapEnergy_e ;
+        case 'Phi_ela'
+            load(femSolFile,'SnapEnergy_e') ; SnapEnergy = SnapEnergy_e ; clear SnapEnergy_e
         case 'Phi_vol' 
-            SnapEnergy = SnapEnergy_e_vol ;
+            load(femSolFile,'SnapEnergy_e_vol') ; SnapEnergy = SnapEnergy_e_vol ; clear SnapEnergy_e_vol
         case 'Phi_dev' 
-            SnapEnergy = SnapEnergy_e_dev ;
+            load(femSolFile,'SnapEnergy_e_dev') ; SnapEnergy = SnapEnergy_e_dev ; clear SnapEnergy_e_dev
         case 'Phi_pla' 
-            SnapEnergy = SnapEnergy_p ;
+            load(femSolFile,'SnapEnergy_p') ; SnapEnergy = SnapEnergy_p ; clear SnapEnergy_p
         case 'Phi_tot' 
-            SnapEnergy = SnapEnergy_t ;            
+            load(femSolFile,'SnapEnergy_t') ; SnapEnergy = SnapEnergy_t ; clear SnapEnergy_t
         otherwise
             warning('Unexpected energy snapshot definition')
     end
     fem_reg = SnapEnergy(PointersToSet1,:);
-    fem_sin = SnapEnergy(PointersToSet2,:);           
-    flagSnp = Snapflag   ;
-    clear SnapStrain SnapEnergy_e SnapEnergy_e_vol SnapEnergy_e_dev;
-    clear SnapEnergy_p SnapEnergy_t Snapflag SnapWeight SnapStress;    
+    fem_sin = SnapEnergy(PointersToSet2,:); 
+    load(femSolFile,'Snapflag') ; flagSnp = Snapflag ; clear Snapflag 
 else
     error('binary files not detected, please check if the mat files are already created!')
 end

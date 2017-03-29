@@ -11,14 +11,14 @@ normaliz=0; % normalize snapshots before SVD
 tol_nE = 1e-5 ; % tolerancia para determinar el nro de modos elasticos
 % tol_nI = 1e-5 ; % tolerancia para determinar el nro de modos inelasticos
 nE_max = 6; % number of elastic snapshots (Maximo) JLM
-nPos = 83; % number of Inelastic snapshots (DEBE COINCIDIR CON STEP 02)
+nPos = 0; % number of Inelastic snapshots (DEBE COINCIDIR CON STEP 02)
 Dom_Descomp = 1 ; % 1= yes; 0 = no
-nameExtensionW=['RVE_StructHole10_nPos' num2str(nPos)]; % Directory of Modes 
-load('/home/javiermro/Projects/Examples/StructHole10/DomainPointers.mat'); % Pointer for Domain Decomposition 
+nameExtensionW=['RVE_Hole01_nPos' num2str(nPos)]; % Directory of Modes 
+load('/home/javiermro/Projects/Examples/RVE_Hole01/DomainPointers.mat'); % Pointer for Domain Decomposition 
 
-nModes = 26; %number of modes or trajectories
-snpFolder0 = '/home/javiermro/Projects/Examples/StructHole10/Modo';
-snpFile='SNAPSHOTS_RVE_StructHole10.mat';
+nModes = 6; %number of modes or trajectories
+snpFolder0 = '/home/javiermro/Projects/Examples/RVE_Hole01/Modo';
+snpFile='SNAPSHOTS_RVE_Hole01.mat';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  
 
 snpFolder = [];
